@@ -16,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Threading.Tasks;
+using IIoTEngTool.Registry;
 
 namespace IIoTEngTool
 {
@@ -126,6 +127,8 @@ namespace IIoTEngTool
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<GetNodeService>();
+            var contextAcessor = new HttpContextAccessor();
+            services.AddSingleton<RegistryService>(sp => new RegistryService(AzureADOptions, TwinServiceOptions, TokenCacheService, contextAcessor));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -68,6 +68,7 @@ namespace IIoTEngTool.Services
                     $"Failed to authenticate on behalf of {user}", ex);
                 } 
             }
+            return null;
         }
 
         public Task InvalidateAsync(string resource)

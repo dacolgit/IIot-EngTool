@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 using Microsoft.Azure.IIoT.OpcUa.Api.Twin.Models;
 using System.Diagnostics;
 using IIoTEngTool.Data;
-using IIoTEngTool;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+
 
 namespace IIoTEngTool.tree
 {
     public class GetNodeService : IgetNodeService
     {
         public string path;
-        //public enum Direction { Forward=0, Backward};
 
         public GetNodeService()
         {
