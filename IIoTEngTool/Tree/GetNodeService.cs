@@ -6,17 +6,18 @@ using System.Threading.Tasks;
 using Microsoft.Azure.IIoT.OpcUa.Api.Twin.Models;
 using System.Diagnostics;
 using IIoTEngTool.Data;
-
+using IIoTEngTool.Twin;
 
 namespace IIoTEngTool.tree
 {
     public class GetNodeService : IgetNodeService
     {
         public string path;
+        private TwinService _twinService; 
 
-        public GetNodeService()
+        public GetNodeService(TwinService twinService)
         {
-            Startup.RegistryServiceInstance.ConfigureTwinService();
+            _twinService = twinService;
         }
 
         public async Task<PagedResult<ListNode>> GetTree(string endpointId, string id, List<string> parentId, BrowseDirection direction)
@@ -42,11 +43,8 @@ namespace IIoTEngTool.tree
             
             try
             {
-                if (Startup.RegistryServiceInstance.TwinService == null)
-                {
-                    Startup.RegistryServiceInstance.ConfigureTwinService();
-                }
-                var browseData = await Startup.RegistryServiceInstance.TwinService.NodeBrowseAsync(endpointId, model);
+                var browseData = await _twinService.NodeBrowseAsync(endpointId, model);
+
                 var continuationToken = browseData.ContinuationToken;
                 List<NodeReferenceApiModel> references = browseData.References;
                 BrowseNextResponseApiModel browseDataNext = new BrowseNextResponseApiModel();
@@ -84,7 +82,7 @@ namespace IIoTEngTool.tree
                     {
                         BrowseNextRequestApiModel modelNext = new BrowseNextRequestApiModel();
                         modelNext.ContinuationToken = continuationToken;
-                        browseDataNext = await Startup.RegistryServiceInstance.TwinService.NodeBrowseNextAsync(endpointId, modelNext);
+                        browseDataNext = await _twinService.NodeBrowseNextAsync(endpointId, modelNext);
                         references = browseDataNext.References;
                         continuationToken = browseDataNext.ContinuationToken;
                     }

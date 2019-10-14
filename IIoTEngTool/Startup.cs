@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Threading.Tasks;
 using IIoTEngTool.Registry;
+using IIoTEngTool.Twin;
 
 namespace IIoTEngTool
 {
@@ -35,7 +36,6 @@ namespace IIoTEngTool
         public AzureADOptions AzureADOptions { get; }
         public TwinServiceApiOptions TwinServiceOptions { get; }
         public ITokenCacheService TokenCacheService { get; set; }
-        public static StartupTwinServices RegistryServiceInstance { get; set; }
 
         // This method gets ITokenCacheService by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -60,7 +60,7 @@ namespace IIoTEngTool
                 // but instead OnTokenValidated event is called. Here we request both so that OnTokenValidated is called first which 
                 // ensures that context.Principal has a non-null value when OnAuthorizeationCodeReceived is called
                 options.ResponseType = "id_token code";
-                
+
                 options.Resource = TwinServiceOptions.ResourceId;
 
                 // refresh token
@@ -71,8 +71,6 @@ namespace IIoTEngTool
                     OnTicketReceived = context =>
                     {
                         // If your authentication logic is based on users then add your logic here
-                        var contextAcessor = new HttpContextAccessor();
-                        RegistryServiceInstance = new StartupTwinServices(AzureADOptions, TwinServiceOptions, TokenCacheService, contextAcessor);
                         return Task.CompletedTask;
                     },
                     OnAuthenticationFailed = context =>
@@ -101,6 +99,10 @@ namespace IIoTEngTool
 
                         // Notify the OIDC middleware that we already took care of code redemption.
                         context.HandleCodeRedemption(authResult.AccessToken, context.ProtocolMessage.IdToken);
+
+                        var contextAccessor = new HttpContextAccessor();
+                        services.AddSingleton<TwinService>(sp => new TwinService(AzureADOptions, TwinServiceOptions, TokenCacheService, contextAccessor));
+                    
                     }
                     // If your application needs to do authenticate single users, add your user validation below.
                     //OnTokenValidated = context =>
@@ -128,7 +130,7 @@ namespace IIoTEngTool
             services.AddServerSideBlazor();
             services.AddSingleton<GetNodeService>();
             var contextAcessor = new HttpContextAccessor();
-            services.AddSingleton<RegistryService>(sp => new RegistryService(AzureADOptions, TwinServiceOptions, TokenCacheService, contextAcessor));
+            services.AddSingleton<TwinService>(sp => new TwinService(AzureADOptions, TwinServiceOptions, TokenCacheService, contextAcessor));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

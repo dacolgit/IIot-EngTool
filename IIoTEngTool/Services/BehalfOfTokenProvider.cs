@@ -1,6 +1,8 @@
 ﻿
+using IIoTEngTool.tree;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.IIoT.Auth;
 using Microsoft.Azure.IIoT.Auth.Models;
 using Microsoft.Azure.IIoT.OpcUa.Services.App.TokenStorage;
@@ -47,7 +49,7 @@ namespace IIoTEngTool.Services
 
             string userObjectId = (_contextAccessor.HttpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier"))?.Value;
             var user = new UserIdentifier(userObjectId, UserIdentifierType.UniqueId);
-
+            
             try
             {
                 var _result = await authenticationContext.AcquireTokenSilentAsync(
