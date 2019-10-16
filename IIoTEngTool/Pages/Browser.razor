@@ -1,8 +1,8 @@
-﻿@page "/browser"
-@page "/browser/{page}"
+﻿@page "/browser/{supervisorId}/{endpointId}"
+@page "/browser/{supervisorId}/{endpointId}/{page}"
 
 
-@using IIoTEngTool.tree
+@using IIoTEngTool.ServicesApp
 @using IIoTEngTool.Components.Pager
 @using IIoTEngTool.Data
 @using Microsoft.AspNetCore.Components;
@@ -30,8 +30,16 @@
                             <span class="oi oi-arrow-left"></span>
                         </a>
                     }
+                    else
+                    {
+                        @if (pagedNodeList.Results[0].supervisorId != string.Empty)
+                        {
+                            <a href='endpoint/@pagedNodeList.Results[0].supervisorId'>
+                                <span class="oi oi-arrow-left"></span>
+                            </a>
+                        }
+                    }
                 }
-
             </th>
          </tr>
     </thead>
@@ -64,6 +72,9 @@
 @code {
 
     [Parameter]
+    public string supervisorId { get; set; } = string.Empty;
+    
+    [Parameter]
     public string endpointId { get; set; } = "uat2a0ca049f2a8cfd99f2b0b972281b40baf6bb378";
 
     [Parameter]
@@ -75,28 +86,28 @@
     public void PagerPageChanged(int page)
     {
         pagedNodeList = NodeList.GetPaged(page, 10);
-        NavigationManager.NavigateTo("/browser/" + page);
+        NavigationManager.NavigateTo("/browser/" + supervisorId + "/" + endpointId + "/" + page);
     }
 
     protected override async Task OnInitializedAsync()
     {
-        NodeList = await Tree.GetTree(endpointId, "", new List<string>(), BrowseDirection.Forward);
+        NodeList = await Tree.GetTree(endpointId, "", new List<string>(), supervisorId, BrowseDirection.Forward);
         Page = "1";
         pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
     }
 
     private async Task GetTreeAsync(string id, List<string> parentId)
     {
-        NodeList = await Tree.GetTree(endpointId, id, parentId, BrowseDirection.Forward);
+        NodeList = await Tree.GetTree(endpointId, id, parentId, supervisorId, BrowseDirection.Forward);
         Page = "1";
         pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
     }
 
     private async Task GetTreeBackAsync(string id, List<string> parentId)
     {
-        NodeList = await Tree.GetTree(endpointId, id, parentId, BrowseDirection.Backward);
+        NodeList = await Tree.GetTree(endpointId, id, parentId, supervisorId, BrowseDirection.Backward);
         Page = "1";
         pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
-        NavigationManager.NavigateTo("/browser");
+        NavigationManager.NavigateTo("/browser/" + supervisorId + "/" +endpointId);
     }
 }

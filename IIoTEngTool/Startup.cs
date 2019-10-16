@@ -1,5 +1,5 @@
 
-using IIoTEngTool.tree;
+using IIoTEngTool.ServicesApp;
 using IIoTEngTool.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
@@ -102,7 +102,7 @@ namespace IIoTEngTool
 
                         var contextAccessor = new HttpContextAccessor();
                         services.AddSingleton<TwinService>(sp => new TwinService(AzureADOptions, TwinServiceOptions, TokenCacheService, contextAccessor));
-                    
+                        services.AddSingleton<RegistryService>(sp => new RegistryService(AzureADOptions, TwinServiceOptions, TokenCacheService, contextAccessor));
                     }
                     // If your application needs to do authenticate single users, add your user validation below.
                     //OnTokenValidated = context =>
@@ -129,8 +129,11 @@ namespace IIoTEngTool
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<GetNodeService>();
+            services.AddSingleton<GetSupervisor>();
+            services.AddSingleton<GetEndpoint>();
             var contextAcessor = new HttpContextAccessor();
             services.AddSingleton<TwinService>(sp => new TwinService(AzureADOptions, TwinServiceOptions, TokenCacheService, contextAcessor));
+            services.AddSingleton<RegistryService>(sp => new RegistryService(AzureADOptions, TwinServiceOptions, TokenCacheService, contextAcessor));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,11 +1,10 @@
 ﻿
 using System.Collections.Generic;
 
-namespace IIoTEngTool.tree
+namespace IIoTEngTool.ServicesApp
 {
     public class ListNode
     {
-        public int idNum { get; set; }
         public string id { get; set; }
         public string nodeClass { get; set; }
         public string accessLevel { get; set; }
@@ -16,6 +15,7 @@ namespace IIoTEngTool.tree
         public bool children { get; set; }
         public string ImageUrl { get; set; }
         public string nodeName { get; set; }
+        public string supervisorId { get; set; }
 
         public List<string> parentIdList;
 

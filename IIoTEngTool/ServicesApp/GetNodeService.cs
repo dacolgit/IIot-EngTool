@@ -8,9 +8,9 @@ using System.Diagnostics;
 using IIoTEngTool.Data;
 using IIoTEngTool.Twin;
 
-namespace IIoTEngTool.tree
+namespace IIoTEngTool.ServicesApp
 {
-    public class GetNodeService : IgetNodeService
+    public class GetNodeService //: IgetNodeService
     {
         public string path;
         private TwinService _twinService; 
@@ -20,7 +20,7 @@ namespace IIoTEngTool.tree
             _twinService = twinService;
         }
 
-        public async Task<PagedResult<ListNode>> GetTree(string endpointId, string id, List<string> parentId, BrowseDirection direction)
+        public async Task<PagedResult<ListNode>> GetTree(string endpointId, string id, List<string> parentId, string supervisorId, BrowseDirection direction )
         {
             PagedResult<ListNode> pageResult = new PagedResult<ListNode>();
             BrowseRequestApiModel model = new BrowseRequestApiModel();
@@ -73,6 +73,7 @@ namespace IIoTEngTool.tree
                                 nodeName = nodeReference.Target.DisplayName.ToString(),
                                 children = (bool)nodeReference.Target.Children,
                                 parentIdList = parentId,
+                                supervisorId = supervisorId,
                                 parentName = browseData.Node.DisplayName
                         });
                         }
@@ -103,7 +104,7 @@ namespace IIoTEngTool.tree
             }
            
             pageResult.PageSize = 10;
-            pageResult.RowCount = (int)pageResult.Results.Count;
+            pageResult.RowCount = pageResult.Results.Count;
             pageResult.PageCount = (int)Math.Ceiling((decimal)pageResult.RowCount / 10);
             return pageResult;
         }

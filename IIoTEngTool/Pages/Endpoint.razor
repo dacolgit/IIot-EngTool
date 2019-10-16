@@ -1,0 +1,100 @@
+﻿@page "/endpoint/{supervisorId}"
+@page "/endpoint/{supervisorId}/{page}"
+
+@using IIoTEngTool.ServicesApp
+@using IIoTEngTool.Components.Pager
+@using IIoTEngTool.Data
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models;
+
+@inject NavigationManager NavigationManager
+@inject GetEndpoint EndpointInstance
+@inject GetSupervisor SupervisorInstance
+
+<h1>Endpoint</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>EndpointUrl</th>
+            <th>SecurityMode</th>
+            <th>SecurityPolicy</th>
+            <th>SecurityLevel</th>
+            <th>EndpointActivation</th>
+            <th>
+                <a href="/supervisor/">
+                    <span class="oi oi-arrow-left"></span>
+                </a>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var endpoint in pagedendpointList.Results)
+        {
+            <tr>
+                @if (endpoint.Activated == true)
+                {
+                    <td>
+                        <a href='browser/@supervisorId/@endpoint.EndpointId'>
+                            @endpoint.EndpointUrl
+                        </a>
+                    </td>
+                }
+                else
+                {
+                    <td>@endpoint.EndpointUrl</td>
+                }
+                <td>@endpoint.SecurityMode</td>
+                <td>@endpoint.SecurityPolicy</td>
+                <td>@endpoint.SecurityLevel</td>
+   
+                <td>
+                    <input type="checkbox" @bind="@endpoint.Activated" @onclick="@(() => SetActivation(endpoint.EndpointId, endpoint.Activated))"/>
+                    @endpoint.Activated.ToString()
+                </td>
+                <td></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<Pager Result=@endpointList PageChanged=@((Page) => PagerPageChanged(Page)) />
+
+@code {
+
+    [Parameter]
+    public string Page { get; set; } = "1";
+
+    [Parameter]
+    public string supervisorId { get; set; } = string.Empty;
+
+    public PagedResult<EndpointInfo> endpointList = new PagedResult<EndpointInfo>();
+    public PagedResult<EndpointInfo> pagedendpointList = new PagedResult<EndpointInfo>();
+
+    public void PagerPageChanged(int page)
+    {
+        pagedendpointList = endpointList.GetPaged(page, 10);
+        NavigationManager.NavigateTo("/endpoint/" + supervisorId + "/" + page);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        IEnumerable<ApplicationInfoApiModel> application = SupervisorInstance.allApplications;
+        endpointList = await EndpointInstance.GetEndpointList(supervisorId, application);
+        Page = "1";
+        pagedendpointList = endpointList.GetPaged(Int32.Parse(Page), 10);
+    }
+
+    private void SetActivation(string endpointId, bool isActivated)
+    {
+        if (isActivated == true)
+        {
+            EndpointInstance.DeActivateEndpoint(endpointId);
+        }
+        else
+        {
+            EndpointInstance.ActivateEndpoint(endpointId);
+        }
+        this.StateHasChanged();
+    }
+}

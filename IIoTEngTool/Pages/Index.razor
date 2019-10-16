@@ -1,37 +1,23 @@
 ﻿@page "/"
 
-@using Microsoft.AspNetCore.Http;
 @using Microsoft.Azure.IIoT.OpcUa.Services.App.TokenStorage;
-@using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 @using IIoTEngTool.Services
-@using IIoTEngTool.Twin
 
-@inject IHttpContextAccessor HttpContextAccessor
+
 @inject ITokenCacheService TokenCacheService
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject AzureADOptions AzureADOptions
-@inject TwinServiceApiOptions TwinServiceOptions
 @inject NavigationManager NavigationManager
-@*@inject TwinService TwinService*@
 
-<h1>Hello, world!</h1>
-Welcome to your new app.
+
+<h1>IIoT Engineering Tool</h1>
 
 
 @code {
 
     protected override async Task OnInitializedAsync()
     {
-        HttpContext httpContext = HttpContextAccessor.HttpContext;
         var authState = AuthenticationStateProvider.GetAuthenticationStateAsync();
-
         var cache = await TokenCacheService.GetCacheAsync(authState.Result.User);
-        var contextAcessor = new HttpContextAccessor();
-
-        //if (Startup.RegistryServiceInstance == null)
-        //{
-        //    Startup.RegistryServiceInstance = new StartupTwinServices(AzureADOptions, TwinServiceOptions, TokenCacheService, contextAcessor);
-        //}
 
         BehalfOfTokenProvider.Authorize = Authorize;
 

@@ -1,0 +1,84 @@
+﻿@page "/supervisor"
+@page "/supervisor/{page}"
+
+@using IIoTEngTool.ServicesApp
+@using IIoTEngTool.Components.Pager
+@using IIoTEngTool.Data
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models;
+
+@inject NavigationManager NavigationManager
+@inject GetSupervisor SupervisorInstance
+
+<h1>Supervisor</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>SupervisorId</th>
+            <th>ConnectionStatus</th>
+            <th>ScanStatus</th>
+            <th>ScanMask</th>
+            <th>PortRange</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{string connectStatus = "Disconnected"; }
+        @foreach (var supervisor in pagedSupervisorList.Results)
+        {
+            <tr>
+                @if (supervisor.HasApplication == true)
+                {
+                    <td>
+                        <a href='endpoint/@supervisor.supervisorModel.Id'>
+                            @supervisor.supervisorModel.Id
+                        </a>
+                    </td>
+                }
+                else
+                {
+                    <td>@supervisor.supervisorModel.Id</td>
+                }
+                <td>@supervisor.supervisorModel.Id</td>
+                @{connectStatus = supervisor.supervisorModel.Connected == true ? "Connected" : "Disconnected";}
+                <td>
+                    @connectStatus
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<Pager Result=@supervisorList PageChanged=@((Page) => PagerPageChanged(Page)) />
+
+
+@code {
+
+    [Parameter]
+    public string Page { get; set; } = "1";
+
+    IEnumerable<ApplicationInfoApiModel> application;
+
+    string endpointId = "";
+
+    PagedResult<SupervisorInfo> supervisorList = new PagedResult<SupervisorInfo>();
+    PagedResult<SupervisorInfo> pagedSupervisorList = new PagedResult<SupervisorInfo>();
+
+    public void PagerPageChanged(int page)
+    {
+        pagedSupervisorList = supervisorList.GetPaged(page, 10);
+        NavigationManager.NavigateTo("/supervisor/" + page);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        supervisorList = await SupervisorInstance.GetSupervisorList();
+        Page = "1";
+        pagedSupervisorList = supervisorList.GetPaged(Int32.Parse(Page), 10);
+        application = SupervisorInstance.allApplications;
+    }
+
+}
