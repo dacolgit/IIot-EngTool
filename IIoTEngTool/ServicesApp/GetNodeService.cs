@@ -10,7 +10,7 @@ using IIoTEngTool.Twin;
 
 namespace IIoTEngTool.ServicesApp
 {
-    public class GetNodeService //: IgetNodeService
+    public class GetNodeService : IgetNodeService
     {
         public string path;
         private TwinService _twinService; 

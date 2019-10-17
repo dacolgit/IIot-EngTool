@@ -33,8 +33,9 @@ namespace IIoTEngTool.ServicesApp
                     foreach (var supervisor in supervisors)
                     {
                         SupervisorInfo supervisorInfo = new SupervisorInfo();
-                        supervisorInfo.supervisorModel = supervisor;
+                        supervisorInfo.SupervisorModel = supervisor;
                         supervisorInfo.HasApplication = false;
+                        supervisorInfo.ScanStatus = (supervisor.Discovery == DiscoveryMode.Off) || (supervisor.Discovery == null) ? false : true;
                         foreach (var application in applications)
                         {
                             if (application.SupervisorId == supervisor.Id)
@@ -57,6 +58,41 @@ namespace IIoTEngTool.ServicesApp
             pageResult.RowCount = pageResult.Results.Count;
             pageResult.PageCount = (int)Math.Ceiling((decimal)pageResult.RowCount / 10);
             return pageResult;
+        }
+
+        public async void SetScan(SupervisorInfo supervisor)
+        {
+            SupervisorUpdateApiModel model = new SupervisorUpdateApiModel();
+            model.DiscoveryConfig = new DiscoveryConfigApiModel();
+            model.DiscoveryConfig.AddressRangesToScan = "";
+            model.DiscoveryConfig.PortRangesToScan = "";
+
+            if (supervisor.ScanStatus == false)
+            {
+                model.Discovery = DiscoveryMode.Fast;
+                //if ((ipMask != null) && (ipMask != string.Empty))
+                //{
+                //    model.DiscoveryConfig.AddressRangesToScan = ipMask;
+                //}
+                //if (portRange != null)
+                //{
+                //    model.DiscoveryConfig.PortRangesToScan = portRange;
+                //}
+            }
+            else
+            {
+                model.Discovery = DiscoveryMode.Off;
+            }
+
+            try
+            {
+                await _registryService.UpdateSupervisorAsync(supervisor.SupervisorModel.Id, model);
+            }
+            catch (Exception exception)
+            {
+                string errorMessageTrace = string.Format(exception.Message, exception.InnerException?.Message ?? "--", exception?.StackTrace ?? "--");
+                Trace.TraceError(errorMessageTrace);
+            }
         }
     }
 }

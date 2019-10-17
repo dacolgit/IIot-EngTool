@@ -30,21 +30,36 @@
                 @if (supervisor.HasApplication == true)
                 {
                     <td>
-                        <a href='endpoint/@supervisor.supervisorModel.Id'>
-                            @supervisor.supervisorModel.Id
+                        <a href='endpoint/@supervisor.SupervisorModel.Id'>
+                            @supervisor.SupervisorModel.Id
                         </a>
                     </td>
                 }
                 else
                 {
-                    <td>@supervisor.supervisorModel.Id</td>
+                    <td>@supervisor.SupervisorModel.Id</td>
                 }
-                <td>@supervisor.supervisorModel.Id</td>
-                @{connectStatus = supervisor.supervisorModel.Connected == true ? "Connected" : "Disconnected";}
+                @{connectStatus = supervisor.SupervisorModel.Connected == true ? "Connected" : "Disconnected";}
                 <td>
                     @connectStatus
                 </td>
-                <td></td>
+                <td>
+                    <input type="checkbox" @bind="@supervisor.ScanStatus" @onclick="@(() => SetScan(supervisor))" />
+                    @{ string output;}
+                    @if (supervisor.ScanStatus == true)
+                    {
+                        output = "On";
+                    }
+                    else
+                    {
+                        output = "Off";
+                    }
+                    @output
+                    @if (supervisor.IsSearching)
+                    {
+                        <div class=" pos-right loader"></div>
+                    }
+                </td>
                 <td></td>
                 <td></td>
             </tr>
@@ -60,9 +75,9 @@
     [Parameter]
     public string Page { get; set; } = "1";
 
-    IEnumerable<ApplicationInfoApiModel> application;
-
-    string endpointId = "";
+    IEnumerable<ApplicationInfoApiModel> application { get; set; }
+    string endpointId { get; set; } = "";
+    bool IsSearching { get; set; } = false;
 
     PagedResult<SupervisorInfo> supervisorList = new PagedResult<SupervisorInfo>();
     PagedResult<SupervisorInfo> pagedSupervisorList = new PagedResult<SupervisorInfo>();
@@ -81,4 +96,21 @@
         application = SupervisorInstance.allApplications;
     }
 
+    private async Task SetScan(SupervisorInfo supervisor)
+    {
+        SupervisorInstance.SetScan(supervisor);
+
+        if (supervisor.ScanStatus == false)
+        {
+            supervisor.IsSearching = true;
+
+            await Task.Delay(10000);
+            supervisorList = await SupervisorInstance.GetSupervisorList();
+            pagedSupervisorList = supervisorList.GetPaged(Int32.Parse(Page), 10);
+            application = SupervisorInstance.allApplications;
+
+            supervisor.IsSearching = false;
+            await Task.CompletedTask;
+        }   
+    }
 }

@@ -11,7 +11,17 @@ namespace IIoTEngTool.ServicesApp
         /// <summary>
         /// Supervisor models.
         /// </summary>
-        public SupervisorApiModel supervisorModel { get; set; }
+        public SupervisorApiModel SupervisorModel { get; set; }
+
+        /// <summary>
+        /// scan status.
+        /// </summary>
+        public bool ScanStatus { get; set; }
+
+        /// <summary>
+        /// is scan searching.
+        /// </summary>
+        public bool IsSearching { get; set; }
 
         /// <summary>
         /// Supervisor has application children.

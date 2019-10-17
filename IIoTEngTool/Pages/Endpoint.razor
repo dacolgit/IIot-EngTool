@@ -13,6 +13,8 @@
 
 <h1>Endpoint</h1>
 
+<div>@supervisorId</div>
+
 <table class="table">
     <thead>
         <tr>
@@ -70,6 +72,7 @@
 
     public PagedResult<EndpointInfo> endpointList = new PagedResult<EndpointInfo>();
     public PagedResult<EndpointInfo> pagedendpointList = new PagedResult<EndpointInfo>();
+    public string path = "/supervisorId";
 
     public void PagerPageChanged(int page)
     {
@@ -95,6 +98,5 @@
         {
             EndpointInstance.ActivateEndpoint(endpointId);
         }
-        this.StateHasChanged();
     }
 }

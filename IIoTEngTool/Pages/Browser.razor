@@ -1,4 +1,5 @@
-﻿@page "/browser/{supervisorId}/{endpointId}"
+﻿@page "/browser/{endpointId}"
+@page "/browser/{supervisorId}/{endpointId}"
 @page "/browser/{supervisorId}/{endpointId}/{page}"
 
 
@@ -13,7 +14,7 @@
 
 <h1>Browser</h1>
 
-<div>@Tree.path</div>
+<div>@supervisorId/@endpointId/@Tree.path</div>
 
 <table class="table">
     <thead>
@@ -24,7 +25,7 @@
             <th>
                 @if (pagedNodeList.Results.Count > 0)
                 {
-                    @if (pagedNodeList.Results[0].parentName != "Root")
+                    if (pagedNodeList.Results[0].parentName != "Root")
                     {
                         <a href="javascript: void(0)" @onclick="@(() => GetTreeBackAsync(pagedNodeList.Results[0].nextParentId, pagedNodeList.Results[0].parentIdList))">
                             <span class="oi oi-arrow-left"></span>
@@ -32,7 +33,7 @@
                     }
                     else
                     {
-                        @if (pagedNodeList.Results[0].supervisorId != string.Empty)
+                        if (pagedNodeList.Results[0].supervisorId != null)
                         {
                             <a href='endpoint/@pagedNodeList.Results[0].supervisorId'>
                                 <span class="oi oi-arrow-left"></span>
@@ -41,27 +42,28 @@
                     }
                 }
             </th>
-         </tr>
+        </tr>
     </thead>
     <tbody>
         @foreach (var node in pagedNodeList.Results)
         {
-            <tr>
-                <td>@node.nodeName</td>
-                <td>@node.id</td>
-                @if (node.children == true)
+        <tr>
+            <td>@node.nodeName</td>
+            <td>@node.id</td>
+            @if (node.children == true)
                 {
-                    <td>
-                        <a href="javascript: void(0)" @onclick="@(() => GetTreeAsync(node.id, node.parentIdList))">
-                            @node.nodeClass
-                        </a>
-                    </td>
+            <td>
+                <a href="javascript: void(0)" @onclick="@(() => GetTreeAsync(node.id, node.parentIdList))">
+                    @node.nodeClass
+                </a>
+            </td>
                 }
                 else
                 {
-                    <td>@node.nodeClass</td>
-                }         
-            </tr>     
+            <td>@node.nodeClass</td>
+                }
+        </tr>
+
         }
     </tbody>
 </table>
@@ -73,7 +75,7 @@
 
     [Parameter]
     public string supervisorId { get; set; } = string.Empty;
-    
+
     [Parameter]
     public string endpointId { get; set; } = "uat2a0ca049f2a8cfd99f2b0b972281b40baf6bb378";
 

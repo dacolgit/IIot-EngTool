@@ -8,6 +8,6 @@ namespace IIoTEngTool.ServicesApp
 {
     interface IgetNodeService
     {
-        public Task<PagedResult<ListNode>> GetTree(string endpointId, string id, List<string> parentId, BrowseDirection direction);
+        public Task<PagedResult<ListNode>> GetTree(string endpointId, string id, List<string> parentId, string supervisorId, BrowseDirection direction);
     }
 }
