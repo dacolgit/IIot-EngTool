@@ -3,9 +3,10 @@
 
 @using IIoTEngTool.ServicesApp
 @using IIoTEngTool.Components.Pager
+@using IIoTEngTool.Components.Drawer
 @using IIoTEngTool.Data
 @using Microsoft.AspNetCore.Components;
-@using Microsoft.Azure.IIoT.OpcUa.Api.Registry.Models;
+
 
 @inject NavigationManager NavigationManager
 @inject GetSupervisor SupervisorInstance
@@ -44,28 +45,62 @@
                     @connectStatus
                 </td>
                 <td>
-                    <input type="checkbox" @bind="@supervisor.ScanStatus" @onclick="@(() => SetScan(supervisor))" />
-                    @{ string output;}
-                    @if (supervisor.ScanStatus == true)
-                    {
-                        output = "On";
-                    }
-                    else
-                    {
-                        output = "Off";
-                    }
+                    <input type="checkbox" @bind="@supervisor.ScanStatus" @onclick="@(() => SetScan(supervisor,
+                                                                                                    false,
+                                                                                                    supervisor.SupervisorModel.DiscoveryConfig?.AddressRangesToScan,
+                                                                                                    supervisor.SupervisorModel.DiscoveryConfig?.PortRangesToScan))" />
+                    @{string output = supervisor.ScanStatus == true ?  "On" : "Off";}
                     @output
                     @if (supervisor.IsSearching)
                     {
                         <div class=" pos-right loader"></div>
                     }
                 </td>
-                <td></td>
-                <td></td>
+                <td>
+                    @{string portOutput = supervisor.SupervisorModel.DiscoveryConfig?.AddressRangesToScan == null ? "Default" : supervisor.SupervisorModel.DiscoveryConfig.AddressRangesToScan;}
+                    <a href="javascript: void(0)" @onclick="@(() => OpenDrawer(supervisor))">
+                        @portOutput
+                    </a>
+                </td>
+                <td>
+                    @{string scanOutput = supervisor.SupervisorModel.DiscoveryConfig?.PortRangesToScan == null ? "Default" : supervisor.SupervisorModel.DiscoveryConfig.PortRangesToScan;}
+                    <a href="javascript: void(0)" @onclick="@(() => OpenDrawer(supervisor))">
+                        @scanOutput
+                    </a>
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
+@if(IsOpened)
+{
+    <Drawer HeaderText="Scan IP address range" ObjectData="@SupervisorData" CloseDrawer="@(() => CloseDrawer())">
+        <div class="drawer-content list-group">
+            <div class="list-group-item text-justify list-group-item-heading">
+                <b>Enter address range to scan.</b>
+                <br><b>To apply default config leave the input field blank and click on apply</b>
+            </div>
+            <hr />
+            <div class="list-group-item text-left">
+                <form>
+                    <div class="form-group">
+                        <label>Mask address range (CIDR notation)</label>
+                        <input @bind="@IpMask" aria-label="addressRange" id="ipAddressMask" type="text" class="form-control" placeholder="IP-address/netmask" />
+                    </div>
+                    <div class="form-group">
+                        <label>Port range</label>
+                        <input @bind-value="@PortRange" aria-label="portRange" id="PortRange" type="text" class="form-control" placeholder="StartPort-EndPort" />
+                    </div>
+                    <hr />
+                    <div>
+                        <button @onclick="@(() => SetScan(SupervisorData, true, IpMask, PortRange))" type="button" class="btn btn-primary">Apply</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </Drawer> 
+}
 
 <Pager Result=@supervisorList PageChanged=@((Page) => PagerPageChanged(Page)) />
 
@@ -75,12 +110,13 @@
     [Parameter]
     public string Page { get; set; } = "1";
 
-    IEnumerable<ApplicationInfoApiModel> application { get; set; }
-    string endpointId { get; set; } = "";
-    bool IsSearching { get; set; } = false;
-
-    PagedResult<SupervisorInfo> supervisorList = new PagedResult<SupervisorInfo>();
-    PagedResult<SupervisorInfo> pagedSupervisorList = new PagedResult<SupervisorInfo>();
+    public bool IsSearching { get; set; } = false;
+    public bool IsOpened { get; set; } = false;
+    public SupervisorInfo SupervisorData { get; set; }
+    public string IpMask { get; set; }
+    public string PortRange { get; set; }
+    public PagedResult<SupervisorInfo> supervisorList = new PagedResult<SupervisorInfo>();
+    public PagedResult<SupervisorInfo> pagedSupervisorList = new PagedResult<SupervisorInfo>();
 
     public void PagerPageChanged(int page)
     {
@@ -93,24 +129,36 @@
         supervisorList = await SupervisorInstance.GetSupervisorList();
         Page = "1";
         pagedSupervisorList = supervisorList.GetPaged(Int32.Parse(Page), 10);
-        application = SupervisorInstance.allApplications;
     }
 
-    private async Task SetScan(SupervisorInfo supervisor)
+    private async Task SetScan(SupervisorInfo supervisor, bool forceScan, string ipMask=null, string portRange=null)
     {
-        SupervisorInstance.SetScan(supervisor);
+        
+        SupervisorInstance.SetScan(supervisor, ipMask, portRange, forceScan);
 
-        if (supervisor.ScanStatus == false)
+        if (supervisor.ScanStatus == false || forceScan == true)
         {
             supervisor.IsSearching = true;
 
             await Task.Delay(10000);
             supervisorList = await SupervisorInstance.GetSupervisorList();
             pagedSupervisorList = supervisorList.GetPaged(Int32.Parse(Page), 10);
-            application = SupervisorInstance.allApplications;
 
             supervisor.IsSearching = false;
             await Task.CompletedTask;
-        }   
+            this.StateHasChanged();
+        }
+    }
+
+    private void OpenDrawer(SupervisorInfo supervisor)
+    {
+        IsOpened = true;
+        SupervisorData = supervisor;
+    }
+
+    private void CloseDrawer()
+    {
+        IsOpened = false;
+        this.StateHasChanged();
     }
 }

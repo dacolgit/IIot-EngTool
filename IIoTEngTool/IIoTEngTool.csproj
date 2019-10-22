@@ -30,4 +30,8 @@
     <Folder Include="Services\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\css\drawer.css" />
+  </ItemGroup>
+
 </Project>

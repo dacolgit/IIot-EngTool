@@ -93,23 +93,34 @@
 
     protected override async Task OnInitializedAsync()
     {
-        NodeList = await Tree.GetTree(endpointId, "", new List<string>(), supervisorId, BrowseDirection.Forward);
-        Page = "1";
-        pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
+        //NodeList = await Tree.GetTree(endpointId, "", new List<string>(), supervisorId, BrowseDirection.Forward);
+        //Page = "1";
+        //pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
+        await GetTree(string.Empty, new List<string>(), BrowseDirection.Forward);
     }
 
     private async Task GetTreeAsync(string id, List<string> parentId)
     {
-        NodeList = await Tree.GetTree(endpointId, id, parentId, supervisorId, BrowseDirection.Forward);
-        Page = "1";
-        pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
+        //NodeList = await Tree.GetTree(endpointId, id, parentId, supervisorId, BrowseDirection.Forward);
+        //Page = "1";
+        //pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
+        await GetTree(id, parentId, BrowseDirection.Forward);
     }
 
     private async Task GetTreeBackAsync(string id, List<string> parentId)
     {
-        NodeList = await Tree.GetTree(endpointId, id, parentId, supervisorId, BrowseDirection.Backward);
+        //NodeList = await Tree.GetTree(endpointId, id, parentId, supervisorId, BrowseDirection.Backward);
+        //Page = "1";
+        //pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
+
+        await GetTree(id, parentId, BrowseDirection.Backward);
+        NavigationManager.NavigateTo("/browser/" + supervisorId + "/" +endpointId);
+    }
+
+    private async Task GetTree(String id, List<string> parentId, BrowseDirection direction )
+    {
+        NodeList = await Tree.GetTree(endpointId, id, parentId, supervisorId, direction);
         Page = "1";
         pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
-        NavigationManager.NavigateTo("/browser/" + supervisorId + "/" +endpointId);
     }
 }

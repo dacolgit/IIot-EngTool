@@ -60,24 +60,33 @@ namespace IIoTEngTool.ServicesApp
             return pageResult;
         }
 
-        public async void SetScan(SupervisorInfo supervisor)
+        public async void SetScan(SupervisorInfo supervisor, string ipMask, string portRange, bool forceScan)
         {
             SupervisorUpdateApiModel model = new SupervisorUpdateApiModel();
             model.DiscoveryConfig = new DiscoveryConfigApiModel();
-            model.DiscoveryConfig.AddressRangesToScan = "";
-            model.DiscoveryConfig.PortRangesToScan = "";
 
-            if (supervisor.ScanStatus == false)
+            if (forceScan == true)
+            {
+                model.DiscoveryConfig.AddressRangesToScan = string.Empty;
+                model.DiscoveryConfig.PortRangesToScan = string.Empty;
+            }
+            else
+            {
+                model.DiscoveryConfig = supervisor.SupervisorModel.DiscoveryConfig;
+            }
+
+            if (supervisor.ScanStatus == false || forceScan == true)
             {
                 model.Discovery = DiscoveryMode.Fast;
-                //if ((ipMask != null) && (ipMask != string.Empty))
-                //{
-                //    model.DiscoveryConfig.AddressRangesToScan = ipMask;
-                //}
-                //if (portRange != null)
-                //{
-                //    model.DiscoveryConfig.PortRangesToScan = portRange;
-                //}
+               
+                if (ipMask != null) 
+                {
+                    model.DiscoveryConfig.AddressRangesToScan = ipMask;
+                }
+                if (portRange != null)
+                {
+                    model.DiscoveryConfig.PortRangesToScan = portRange;
+                }
             }
             else
             {
