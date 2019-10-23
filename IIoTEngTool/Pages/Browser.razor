@@ -51,17 +51,17 @@
             <td>@node.nodeName</td>
             <td>@node.id</td>
             @if (node.children == true)
-                {
-            <td>
-                <a href="javascript: void(0)" @onclick="@(() => GetTreeAsync(node.id, node.parentIdList))">
-                    @node.nodeClass
-                </a>
-            </td>
-                }
-                else
-                {
-            <td>@node.nodeClass</td>
-                }
+            {
+                <td>
+                    <a href="javascript: void(0)" @onclick="@(() => GetTreeAsync(node.id, node.parentIdList))">
+                        @node.nodeClass
+                    </a>
+                </td>
+            }
+            else
+            {
+                <td>@node.nodeClass</td>
+            }
         </tr>
 
         }
@@ -93,26 +93,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        //NodeList = await Tree.GetTree(endpointId, "", new List<string>(), supervisorId, BrowseDirection.Forward);
-        //Page = "1";
-        //pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
         await GetTree(string.Empty, new List<string>(), BrowseDirection.Forward);
     }
 
     private async Task GetTreeAsync(string id, List<string> parentId)
     {
-        //NodeList = await Tree.GetTree(endpointId, id, parentId, supervisorId, BrowseDirection.Forward);
-        //Page = "1";
-        //pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
         await GetTree(id, parentId, BrowseDirection.Forward);
     }
 
     private async Task GetTreeBackAsync(string id, List<string> parentId)
     {
-        //NodeList = await Tree.GetTree(endpointId, id, parentId, supervisorId, BrowseDirection.Backward);
-        //Page = "1";
-        //pagedNodeList = NodeList.GetPaged(Int32.Parse(Page), 10);
-
         await GetTree(id, parentId, BrowseDirection.Backward);
         NavigationManager.NavigateTo("/browser/" + supervisorId + "/" +endpointId);
     }

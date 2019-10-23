@@ -13,7 +13,7 @@
 
 <h1>Endpoint</h1>
 
-<div>@supervisorId</div>
+<div>@SupervisorId</div>
 
 <table class="table">
     <thead>
@@ -37,7 +37,7 @@
                 @if (endpoint.Activated == true)
                 {
                     <td>
-                        <a href='browser/@supervisorId/@endpoint.EndpointId'>
+                        <a href='browser/@SupervisorId/@endpoint.EndpointId'>
                             @endpoint.EndpointUrl
                         </a>
                     </td>
@@ -68,22 +68,21 @@
     public string Page { get; set; } = "1";
 
     [Parameter]
-    public string supervisorId { get; set; } = string.Empty;
+    public string SupervisorId { get; set; } = string.Empty;
 
     public PagedResult<EndpointInfo> endpointList = new PagedResult<EndpointInfo>();
     public PagedResult<EndpointInfo> pagedendpointList = new PagedResult<EndpointInfo>();
-    public string path = "/supervisorId";
 
     public void PagerPageChanged(int page)
     {
         pagedendpointList = endpointList.GetPaged(page, 10);
-        NavigationManager.NavigateTo("/endpoint/" + supervisorId + "/" + page);
+        NavigationManager.NavigateTo("/endpoint/" + SupervisorId + "/" + page);
     }
 
     protected override async Task OnInitializedAsync()
     {
         IEnumerable<ApplicationInfoApiModel> application = SupervisorInstance.allApplications;
-        endpointList = await EndpointInstance.GetEndpointList(supervisorId, application);
+        endpointList = await EndpointInstance.GetEndpointList(SupervisorId, application);
         Page = "1";
         pagedendpointList = endpointList.GetPaged(Int32.Parse(Page), 10);
     }
